@@ -10,6 +10,7 @@ import lombok.Data;
  * A DTO for the {@link com.mobilestore.domain.OrderDetail} entity
  */
 @Data
+
 public class OrderDetailDTO implements Serializable {
 
     private Long id;

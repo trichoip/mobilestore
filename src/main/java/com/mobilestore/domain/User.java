@@ -1,6 +1,8 @@
 package com.mobilestore.domain;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -16,9 +18,15 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@Data
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 @Entity
 @Table(name = "Users")
 public class User {
@@ -50,13 +58,13 @@ public class User {
     private String address;
 
     @OneToMany(mappedBy = "user")
-    private Set<Order> orders = new LinkedHashSet<>();
+    private List<Order> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "supplier")
-    private Set<Product> products = new LinkedHashSet<>();
+    private List<Product> products = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "User_Role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new LinkedHashSet<>();
+    private List<Role> roles = new ArrayList<>();
 
 }

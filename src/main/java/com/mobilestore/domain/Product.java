@@ -1,7 +1,7 @@
 package com.mobilestore.domain;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -59,6 +59,6 @@ public class Product {
     private User supplier;
 
     @OneToMany(mappedBy = "product")
-    private Set<OrderDetail> orderDetails = new LinkedHashSet<>();
+    private List<OrderDetail> orderDetails = new ArrayList<>();
 
 }

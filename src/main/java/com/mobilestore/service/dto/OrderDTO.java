@@ -2,7 +2,8 @@ package com.mobilestore.service.dto;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Data;
 
@@ -16,5 +17,5 @@ public class OrderDTO implements Serializable {
     private Integer totalQuantity;
     private Instant orderDate;
     private UserDTO user;
-    private Set<OrderDetailDTO> orderDetails;
+    private List<OrderDetailDTO> orderDetails = new ArrayList<>();
 }

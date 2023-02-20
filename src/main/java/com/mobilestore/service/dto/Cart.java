@@ -1,15 +1,43 @@
 package com.mobilestore.service.dto;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Cart {
 
     private Map<Long, ProductDTO> cart;
-    private Double totalMoney;
+    private Collection<ProductDTO> cartList;
 
     public Cart() {
         this.totalMoney = getTotalMoney();
+        this.totalQuantity = getTotalQuantity();
+        this.cartList = getCartList();
+    }
+
+    public Collection<ProductDTO> getCartList() {
+        if (cart != null) {
+            return cart.values();
+        }
+        return cartList;
+    }
+
+    public void setCartList(Collection<ProductDTO> cartList) {
+        this.cartList = cartList;
+    }
+
+    private Double totalMoney;
+    private Integer totalQuantity;
+
+    public Integer getTotalQuantity() {
+        Integer total = 0;
+        if (this.cart != null) {
+            for (ProductDTO item : cart.values()) {
+                total += item.getQuantity();
+            }
+        }
+        return total;
     }
 
     public void setTotalMoney(Double totalMoney) {
@@ -86,6 +114,10 @@ public class Cart {
             }
         }
         return total;
+    }
+
+    public void setTotalQuantity(Integer totalQuantity) {
+        this.totalQuantity = totalQuantity;
     }
 
 }
