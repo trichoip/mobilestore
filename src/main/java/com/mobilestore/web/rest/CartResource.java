@@ -32,6 +32,9 @@ import com.mobilestore.service.dto.ProductDTO;
 public class CartResource {
 
     @Autowired
+    HttpSession session;
+
+    @Autowired
     private ProductService productService;
 
     @Autowired
