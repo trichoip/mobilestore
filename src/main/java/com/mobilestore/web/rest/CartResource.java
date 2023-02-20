@@ -27,6 +27,7 @@ import com.mobilestore.service.dto.OrderDTO;
 import com.mobilestore.service.dto.OrderDetailDTO;
 import com.mobilestore.service.dto.ProductDTO;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api")
 public class CartResource {

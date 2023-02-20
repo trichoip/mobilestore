@@ -16,6 +16,7 @@ import com.mobilestore.service.dto.JWTToken;
 import com.mobilestore.service.dto.LoginDTO;
 import com.mobilestore.util.JwtUtils;
 
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api")
 public class UserResuorce {
