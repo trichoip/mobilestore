@@ -1,5 +1,7 @@
 package com.mobilestore.config;
 
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -17,7 +19,8 @@ public class CorsConfig {
         config.addAllowedOriginPattern("*"); // Access-Control-Allow-Origin
         config.addAllowedHeader("*"); // Access-Control-Request-Headers
         config.addAllowedMethod("*"); // Access-Control-Request-Method
-
+        config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
