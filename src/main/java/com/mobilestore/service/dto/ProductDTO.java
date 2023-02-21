@@ -24,7 +24,7 @@ public class ProductDTO implements Serializable {
     private String condition;
     private Double price;
     private Integer stock;
-    private Integer quantity;
+    // private Integer quantity;
     private String category;
 
 }

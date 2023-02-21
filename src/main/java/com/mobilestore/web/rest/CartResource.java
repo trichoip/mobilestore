@@ -193,16 +193,21 @@ public class CartResource {
         // }
         // User user = userService.getUserById(userId);
 
-        Cart cart = (Cart) session.getAttribute("cart");
-        if (cart == null || cart.getCart().isEmpty()) {
+        List<ShoppingCart> list = shoppingCartRepository.findAll();
+        if (list.isEmpty()) {
             return ResponseEntity.badRequest().body("Cart is empty.");
         }
+
+        // Cart cart = (Cart) session.getAttribute("cart");
+        // if (cart == null || cart.getCart().isEmpty()) {
+        // return ResponseEntity.badRequest().body("Cart is empty.");
+        // }
 
         OrderDTO order = new OrderDTO();
         order.setOrderDate(Instant.now());
         // order.setUser(user);
-        for (ProductDTO cartItem : cart.getCart().values()) {
-            ProductDTO product = productService.findOne(cartItem.getId())
+        for (ShoppingCart cartItem : list) {
+            ProductDTO product = productService.findOne(cartItem.getProduct().getId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             if (product.getStock() < cartItem.getQuantity()) {
                 return ResponseEntity.badRequest().body("Product " + product.getName() + " is out of stock.");
@@ -218,11 +223,14 @@ public class CartResource {
 
         }
 
-        order.setTotalMoney(cart.getTotalMoney());
-        order.setTotalQuantity(cart.getTotalQuantity());
+        order.setTotalMoney(list.stream()
+                .mapToDouble(shoppingCart -> shoppingCart.getPrice() * shoppingCart.getQuantity())
+                .sum());
+        order.setTotalQuantity(list.stream().mapToInt(ShoppingCart::getQuantity).sum());
         orderService.save(order);
-        cart.getCart().clear();
-        session.setAttribute("cart", cart);
+        list.clear();
+        shoppingCartRepository.deleteAll();
+        // session.setAttribute("cart", cart);
         return ResponseEntity.ok("Order created.");
     }
 
