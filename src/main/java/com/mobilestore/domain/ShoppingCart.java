@@ -37,4 +37,5 @@ public class ShoppingCart {
     @Column(name = "price")
     private Double price;
 
+
 }

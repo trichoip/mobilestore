@@ -139,8 +139,10 @@ public class CartResource {
     public ResponseEntity<String> removeFromCart(HttpSession session, @RequestParam Long productId) {
         // Cart cart = (Cart) session.getAttribute("cart");
         List<ShoppingCart> list = shoppingCartRepository.findAll();
-        shoppingCartRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("cart does not contain product"));
+        ShoppingCart sp = shoppingCartRepository.findByProduct_Id(productId);
+        if (sp == null) {
+            throw new IllegalArgumentException("this product not in cart");
+        }
         if (!list.isEmpty()) {
             for (ShoppingCart shoppingCart : list) {
                 if (shoppingCart.getProduct().getId().equals(productId)) {
