@@ -19,7 +19,7 @@ public class CorsConfig {
         config.addAllowedOriginPattern("*"); // Access-Control-Allow-Origin
         config.addAllowedHeader("*"); // Access-Control-Request-Headers
         config.addAllowedMethod("*"); // Access-Control-Request-Method
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://app-dragon.herokuapp.com"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
