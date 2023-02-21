@@ -1,10 +1,12 @@
 package com.mobilestore.web.rest;
 
 import java.time.Instant;
+import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +20,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.mobilestore.domain.Product;
+import com.mobilestore.domain.ShoppingCart;
 import com.mobilestore.repository.OrderRepository;
+import com.mobilestore.repository.ProductRepository;
+import com.mobilestore.repository.ShoppingCartRepository;
 import com.mobilestore.service.OrderService;
 import com.mobilestore.service.ProductService;
 import com.mobilestore.service.dto.Cart;
 import com.mobilestore.service.dto.OrderDTO;
 import com.mobilestore.service.dto.OrderDetailDTO;
 import com.mobilestore.service.dto.ProductDTO;
+import com.mobilestore.service.dto.ShoppingCartDTO;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -41,6 +48,12 @@ public class CartResource {
     private OrderRepository orderRepository;
 
     @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ShoppingCartRepository shoppingCartRepository;
+
+    @Autowired
     private OrderService orderService;
 
     @Autowired
@@ -49,38 +62,57 @@ public class CartResource {
     @PostMapping("/cart/addToCart")
     public ResponseEntity<String> addToCart(@RequestParam Long productId, @RequestParam Integer quantity,
             HttpSession session) {
-        Cart cart = (Cart) session.getAttribute("cart");
-        if (cart == null) {
-            cart = new Cart();
-        }
-        ProductDTO product = productService.findOne(productId)
+
+        Product p = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        product.setQuantity(quantity);
-        cart.add(product);
-        session.setAttribute("cart", cart);
-        if (session.getAttribute("cart") == null) {
-            throw new IllegalAccessError("session not have");
+        ShoppingCart sp = shoppingCartRepository.findByProduct_Id(productId);
+        if (sp != null) {
+            sp.setQuantity(quantity + sp.getQuantity());
+            shoppingCartRepository.save(sp);
+            return ResponseEntity.ok().body("Product added to cart successfully");
+        } else {
+            sp = new ShoppingCart();
+            sp.setProduct(p);
+            sp.setPrice(p.getPrice());
+            sp.setQuantity(quantity);
+            shoppingCartRepository.save(sp);
         }
+
+        // Cart cart = (Cart) session.getAttribute("cart");
+        // if (cart == null) {
+        // cart = new Cart();
+        // }
+        // ProductDTO product = productService.findOne(productId)
+        // .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        // product.setQuantity(quantity);
+        // cart.add(product);
+        // session.setAttribute("cart", cart);
+        // if (session.getAttribute("cart") == null) {
+        // throw new IllegalAccessError("session not have");
+        // }
         return ResponseEntity.ok().body("Product added to cart successfully");
     }
 
     @DeleteMapping("/cart/clear-cart")
     public ResponseEntity<?> clearCart(HttpSession session) {
-        session.invalidate();
+        // session.invalidate();
+        shoppingCartRepository.deleteAll();
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @GetMapping("/cart")
-    public ResponseEntity<Cart> getCart(HttpSession session) {
-        if (session.getAttribute("cart") == null) {
-            throw new IllegalAccessError("session not have");
-        }
-        Cart cart = (Cart) session.getAttribute("cart");
-        if (cart == null) {
-            cart = new Cart();
-            session.setAttribute("cart", cart);
-        }
-        return ResponseEntity.ok(cart);
+    public ResponseEntity<?> getCart(HttpSession session) {
+        List<ShoppingCart> list = shoppingCartRepository.findAll();
+        // if (session.getAttribute("cart") == null) {
+        // throw new IllegalAccessError("session not have");
+        // }
+        // Cart cart = (Cart) session.getAttribute("cart");
+        // if (cart == null) {
+        // cart = new Cart();
+        // session.setAttribute("cart", cart);
+        // }
+        return ResponseEntity.ok(modelMapper.map(list, new TypeToken<List<ShoppingCartDTO>>() {
+        }.getType()));
     }
 
     @PutMapping("/cart")
@@ -105,16 +137,28 @@ public class CartResource {
 
     @DeleteMapping("/cart")
     public ResponseEntity<String> removeFromCart(HttpSession session, @RequestParam Long productId) {
-        Cart cart = (Cart) session.getAttribute("cart");
-        if (cart != null) {
-            if (!cart.checkProduct(productId)) {
-                return ResponseEntity.badRequest().body("cart does not contain product");
+        // Cart cart = (Cart) session.getAttribute("cart");
+        List<ShoppingCart> list = shoppingCartRepository.findAll();
+        shoppingCartRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("cart does not contain product"));
+        if (!list.isEmpty()) {
+            for (ShoppingCart shoppingCart : list) {
+                if (shoppingCart.getProduct().getId().equals(productId)) {
+                    shoppingCartRepository.delete(shoppingCart);
+                }
             }
-            cart.remove(productId);
-            session.setAttribute("cart", cart);
         } else {
             return ResponseEntity.badRequest().body("cart is empty");
         }
+        // if (cart != null) {
+        // if (!cart.checkProduct(productId)) {
+        // return ResponseEntity.badRequest().body("cart does not contain product");
+        // }
+        // cart.remove(productId);
+        // session.setAttribute("cart", cart);
+        // } else {
+        // return ResponseEntity.badRequest().body("cart is empty");
+        // }
         return ResponseEntity.ok("OK");
     }
 
