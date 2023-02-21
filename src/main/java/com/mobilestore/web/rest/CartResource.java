@@ -118,21 +118,41 @@ public class CartResource {
     @PutMapping("/cart")
     public ResponseEntity<String> updateCart(@RequestParam Long productId, @RequestParam Integer quantity,
             HttpSession session) {
-        Cart cart = (Cart) session.getAttribute("cart");
-        if (cart != null) {
-            if (!cart.checkProduct(productId)) {
+        Product p = productRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        List<ShoppingCart> list = shoppingCartRepository.findAll();
+
+        if (!list.isEmpty()) {
+
+            ShoppingCart sp = shoppingCartRepository.findByProduct_Id(productId);
+            if (sp != null) {
+                sp.setQuantity(quantity);
+                shoppingCartRepository.save(sp);
+                return ResponseEntity.ok().body("Product added to cart successfully");
+            } else {
                 return ResponseEntity.badRequest().body("cart does not contain product");
             }
 
-            ProductDTO product = productService.findOne(productId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-            product.setQuantity(quantity);
-            cart.update(productId, product);
-            session.setAttribute("cart", cart);
         } else {
             return ResponseEntity.badRequest().body("cart is empty");
         }
-        return ResponseEntity.ok("OK");
+
+        // Cart cart = (Cart) session.getAttribute("cart");
+        // if (cart != null) {
+        // if (!cart.checkProduct(productId)) {
+        // return ResponseEntity.badRequest().body("cart does not contain product");
+        // }
+
+        // ProductDTO product = productService.findOne(productId)
+        // .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        // product.setQuantity(quantity);
+        // cart.update(productId, product);
+        // session.setAttribute("cart", cart);
+        // } else {
+        // return ResponseEntity.badRequest().body("cart is empty");
+        // }
+
+        // return ResponseEntity.ok("OK");
     }
 
     @DeleteMapping("/cart")
