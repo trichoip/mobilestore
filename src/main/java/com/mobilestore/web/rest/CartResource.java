@@ -58,6 +58,9 @@ public class CartResource {
         product.setQuantity(quantity);
         cart.add(product);
         session.setAttribute("cart", cart);
+        if (session.getAttribute("cart") == null) {
+            throw new IllegalAccessError("session not have");
+        }
         return ResponseEntity.ok().body("Product added to cart successfully");
     }
 
@@ -69,6 +72,9 @@ public class CartResource {
 
     @GetMapping("/cart")
     public ResponseEntity<Cart> getCart(HttpSession session) {
+        if (session.getAttribute("cart") == null) {
+            throw new IllegalAccessError("session not have");
+        }
         Cart cart = (Cart) session.getAttribute("cart");
         if (cart == null) {
             cart = new Cart();
